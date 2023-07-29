@@ -162,6 +162,49 @@ bool ReadFile(string filename, List* list) {
 	return true;
 }
 
+bool SearchStudent(List* list, char* id, LibStudent &stu) {
+        Node* current = list->head;
+        while (current != nullptr) {
+            if (strcmp(current->item.id, id) == 0) {
+                stu = current->item; 
+                return true;
+            }
+            current = current->next;
+        }
+        return false;
+    }
+
+bool InsertBook(string filename, List* list) {
+    ifstream inFile(filename);
+    if (!inFile.is_open()) {
+        cout << "Error opening file: " << filename << endl;
+        return false;
+    }
+
+    LibStudent newStudent;
+    while (inFile >> newStudent.name >> newStudent.id >> newStudent.course >> newStudent.phone_no) {
+        int numOfBooks;
+        inFile >> newStudent.total_fine >> newStudent.totalbook >> numOfBooks;
+
+        if (numOfBooks > 15) {
+            cout << "Number of books exceeds the maximum limit (15) for student " << newStudent.name << " (ID: " << newStudent.id << ")" << endl;
+            continue;
+        }
+
+        for (int i = 0; i < numOfBooks; i++) {
+            inFile >> newStudent.book[i].title >> newStudent.book[i].author >> newStudent.book[i].ISBN;
+        }
+
+        // Insert the new student with their book information into the list
+        if (!list->insert(newStudent)) {
+            cout << "Error inserting student " << newStudent.name << " (ID: " << newStudent.id << ") into the list." << endl;
+        }
+    }
+
+    inFile.close();
+    return true;
+}
+
 bool DeleteRecord(List* list, char* stuId) {
 
 	//check 
