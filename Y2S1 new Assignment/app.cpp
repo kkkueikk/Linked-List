@@ -175,34 +175,70 @@ bool SearchStudent(List* list, char* id, LibStudent &stu) {
     }
 
 bool InsertBook(string filename, List* list) {
-    ifstream inFile(filename);
-    if (!inFile.is_open()) {
-        cout << "Error opening file: " << filename << endl;
-        return false;
-    }
+	ifstream inFile;
+	inFile.open("book.txt");
 
-    LibStudent newStudent;
-    while (inFile >> newStudent.name >> newStudent.id >> newStudent.course >> newStudent.phone_no) {
-        int numOfBooks;
-        inFile >> newStudent.total_fine >> newStudent.totalbook >> numOfBooks;
+	if (!inFile.is_open()) {
+		cout << "Failed to open the file: " << endl;
+		return false;
+	}
 
-        if (numOfBooks > 15) {
-            cout << "Number of books exceeds the maximum limit (15) for student " << newStudent.name << " (ID: " << newStudent.id << ")" << endl;
-            continue;
-        }
+	LibBook book;
+	char id[10];
+	int currentDay, currentMonth, currentYear;
+	currentDay = 29;
+	currentMonth = 3;
+	currentYear = 2020;
+	Date currentDate(currentDay, currentMonth, currentYear);
 
-        for (int i = 0; i < numOfBooks; i++) {
-            inFile >> newStudent.book[i].title >> newStudent.book[i].author >> newStudent.book[i].ISBN;
-        }
 
-        // Insert the new student with their book information into the list
-        if (!list->insert(newStudent)) {
-            cout << "Error inserting student " << newStudent.name << " (ID: " << newStudent.id << ") into the list." << endl;
-        }
-    }
+	while (!inFile.eof()) {
+		// Read book information from the file
+		inFile.getline(book.title, sizeof(book.title));
+		inFile.getline(book.publisher, sizeof(book.publisher));
+		inFile.getline(book.ISBN, sizeof(book.ISBN));
+		inFile >> book.yearPublished;
 
-    inFile.close();
-    return true;
+		for (int i = 0; i < 10; i++)
+			book.author[i] = NULL;
+		for (int i = 0; i < 10; i++) {
+			char author[100];
+			inFile.getline(author, sizeof(author));
+			if (strlen(author) > 0)
+				book.author[i] = new char[strlen(author) + 1];
+			strcpy(book.author[i], author);
+		}
+
+		inFile >> book.borrow.day >> book.borrow.month >> book.borrow.year;
+		inFile >> book.due.day >> book.due.month >> book.due.year;
+		inFile >> book.callNum;
+
+		// Calculate the fine for the book
+		int dueJulian = book.due.day + 30 * book.due.month + 365 * book.due.year;
+		int currentJulian = currentDate.day + 30 * currentDate.month + 365 * currentDate.year;
+		int daysOverdue = currentJulian - dueJulian;
+
+		if (daysOverdue > 0)
+			book.fine = 0.50 * daysOverdue;
+		else
+			book.fine = 0.0;
+
+		// Read the student ID to insert the book for that student
+		inFile >> id;
+
+		LibStudent student;
+		if (SearchStudent(list, id, student)) {
+			student.book[student.totalbook] = book;
+			student.totalbook++;
+			student.calculateTotalFine();
+		}
+		else {
+			cout << "Student with ID " << id << " not found. Skipping book insertion." << endl;
+		}
+	}
+
+	inFile.close();
+	return true;
 }
 
 bool DeleteRecord(List* list, char* stuId) {
