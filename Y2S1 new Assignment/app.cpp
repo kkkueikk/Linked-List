@@ -18,7 +18,7 @@ bool ReadFile(string, List*);
 bool DeleteRecord(List*, char*);
 bool Display(List *, int, int);
 //bool InsertBook(string, List*);
-//bool SearchStudent(List*, char* id, LibStudent&);
+bool SearchStudent(List*, char* id, LibStudent&);
 bool computeAndDisplayStatistics(List*);
 bool printStuWithSameBook(List*, char*);
 bool displayWarnedStudent(List*, List*, List*);
@@ -34,6 +34,11 @@ int main() {
 	List stdList;
 	string stuId;
 	menu(&choose);
+	//for SearchStudent
+	int stuID;
+	char stuIDStr[8];
+	LibStudent stu;
+
 
 	while (!exit) {
 		switch (choose) {
@@ -55,6 +60,10 @@ int main() {
 			break;
 		case 3:
 			cout << "Search student" << endl;
+			cout << "Give the ID of the student you want to search: ";
+			stuID = getInputInRange(1000000, 9999999);
+			snprintf(stuIDStr, sizeof(stuIDStr), "%d", stuID);
+			SearchStudent(&stdList, stuIDStr, stu);
 			menu(&choose);
 
 			break;
@@ -174,17 +183,21 @@ bool ReadFile(string filename, List* list) {
 	return true;
 }
 
-//bool SearchStudent(List* list, char* id, LibStudent &stu) {
-//        Node* current = list->head;
-//        while (current != nullptr) {
-//            if (strcmp(current->item.id, id) == 0) {
-//                stu = current->item; 
-//                return true;
-//            }
-//            current = current->next;
-//        }
-//        return false;
-//    }
+bool SearchStudent(List* list, char* id, LibStudent &stu) {
+        Node* current = list->head;
+        while (current != nullptr) {
+            if (strcmp(current->item.id, id) == 0) {
+				cout << "\nHere is the student with ID " << *id;
+                stu = current->item; 
+				stu.print(cout);
+				cout << "\n";
+                return true;
+            }
+            current = current->next;
+        }
+		cout << "Student with ID " << *id << "not found!" << endl;
+        return false;
+    }
 
 
 //bool InsertBook(string filename, List* list) {
