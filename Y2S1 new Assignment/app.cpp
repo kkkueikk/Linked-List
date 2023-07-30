@@ -15,11 +15,10 @@
 using namespace std;
 
 bool ReadFile(string, List*);
-//bool DeleteRecord(List*, char*);
+bool DeleteRecord(List*, char*);
 bool Display(List *, int, int);
-bool DeleteRecord(List* list, char* stuId);
-bool InsertBook(string, List*);
-bool SearchStudent(List*, char* id, LibStudent&);
+//bool InsertBook(string, List*);
+//bool SearchStudent(List*, char* id, LibStudent&);
 bool computeAndDisplayStatistics(List*);
 bool printStuWithSameBook(List*, char*);
 bool displayWarnedStudent(List*, List*, List*);
@@ -175,117 +174,95 @@ bool ReadFile(string filename, List* list) {
 	return true;
 }
 
-bool SearchStudent(List* list, char* id, LibStudent &stu) {
-        Node* current = list->head;
-        while (current != nullptr) {
-            if (strcmp(current->item.id, id) == 0) {
-                stu = current->item; 
-                return true;
-            }
-            current = current->next;
-        }
-        return false;
-    }
-
-<<<<<<< HEAD
-//bool InsertBook(string filename, List* list) {
-//    ifstream inFile(filename);
-//    if (!inFile.is_open()) {
-//        cout << "Error opening file: " << filename << endl;
+//bool SearchStudent(List* list, char* id, LibStudent &stu) {
+//        Node* current = list->head;
+//        while (current != nullptr) {
+//            if (strcmp(current->item.id, id) == 0) {
+//                stu = current->item; 
+//                return true;
+//            }
+//            current = current->next;
+//        }
 //        return false;
 //    }
+
+
+//bool InsertBook(string filename, List* list) {
+//	ifstream inFile;
+//	inFile.open("book.txt");
 //
-//    LibStudent newStudent;
-//    while (inFile >> newStudent.name >> newStudent.id >> newStudent.course >> newStudent.phone_no) {
-//        int numOfBooks;
-//        inFile >> newStudent.total_fine >> newStudent.totalbook >> numOfBooks;
+//	if (!inFile.is_open()) {
+//		cout << "Failed to open the file: " << endl;
+//		return false;
+//	}
 //
-//        if (numOfBooks > 15) {
-//            cout << "Number of books exceeds the maximum limit (15) for student " << newStudent.name << " (ID: " << newStudent.id << ")" << endl;
-//            continue;
-//        }
+//	LibBook book;
+//	char id[10];
+//	int currentDay, currentMonth, currentYear;
+// ---------------------------I think you need to use Julian date library to get today's date instead of hardcoded yourself
+//	currentDay = 29;
+//	currentMonth = 3;
+//	currentYear = 2020;
+//	Date currentDate(currentDay, currentMonth, currentYear);
 //
-//        for (int i = 0; i < numOfBooks; i++) {
-//            inFile >> newStudent.book[i].title >> newStudent.book[i].author >> newStudent.book[i].ISBN;
-//        }
 //
-//        // Insert the new student with their book information into the list
-//        if (!list->insert(newStudent)) {
-//            cout << "Error inserting student " << newStudent.name << " (ID: " << newStudent.id << ") into the list." << endl;
-//        }
-//    }
+//	while (!inFile.eof()) {
+//		// Read book information from the file
+// 
+// --------------------------------where is your student id?-----------------------
+// --------------------------------correct format of book.txt: studentId author( if there are multiple author, they will be separated by "/") bookTitle publisher ISBN publishYear callNum borrow due
+// --------------------------------for author you should use delimiter! go online and search getline() for infor of delimiter
+// --------------------------------after reading the data, you should also store it in the list(your second argument), I personally suggest you to do the reading and storing of data from book.txt in another function, Ex:readBookFile()
+//		inFile.getline(book.title, sizeof(book.title));
+//		inFile.getline(book.publisher, sizeof(book.publisher));
+//		inFile.getline(book.ISBN, sizeof(book.ISBN));
+//		inFile >> book.yearPublished;
 //
-//    inFile.close();
-//    return true;
+//		for (int i = 0; i < 10; i++)
+//			book.author[i] = NULL;
+//		for (int i = 0; i < 10; i++) {
+//			char author[100];
+//			inFile.getline(author, sizeof(author));
+//			if (strlen(author) > 0)
+//				book.author[i] = new char[strlen(author) + 1];
+//			strcpy(book.author[i], author);
+// 
+// ----------------------------------------I think strcpy is not good enough to be used? Like what we learn in cybersecurity class, it is not secure enough ya
+//		}
+//
+//		inFile >> book.borrow.day >> book.borrow.month >> book.borrow.year;
+//		inFile >> book.due.day >> book.due.month >> book.due.year;
+//		inFile >> book.callNum;
+//
+// ----------------------------------------use Julian library ---------------------------
+//		// Calculate the fine for the book
+//		int dueJulian = book.due.day + 30 * book.due.month + 365 * book.due.year;
+//		int currentJulian = currentDate.day + 30 * currentDate.month + 365 * currentDate.year;
+//		int daysOverdue = currentJulian - dueJulian;
+//
+//		if (daysOverdue > 0)
+//			book.fine = 0.50 * daysOverdue;
+//		else
+//			book.fine = 0.0;
+//
+//		// Read the student ID to insert the book for that student
+//		inFile >> id;
+//
+// --------------------------this checking should be on top of your function, then you return false if insertion cannot be done, continue insertion if student is found!
+//		LibStudent student;
+//		if (SearchStudent(list, id, student)) {
+//			student.book[student.totalbook] = book;
+//			student.totalbook++;
+//			student.calculateTotalFine();
+//		}
+//		else {
+//			cout << "Student with ID " << id << " not found. Skipping book insertion." << endl;
+//		}
+//	}
+//
+//	inFile.close();
+//	return true;
 //}
-=======
-bool InsertBook(string filename, List* list) {
-	ifstream inFile;
-	inFile.open("book.txt");
-
-	if (!inFile.is_open()) {
-		cout << "Failed to open the file: " << endl;
-		return false;
-	}
-
-	LibBook book;
-	char id[10];
-	int currentDay, currentMonth, currentYear;
-	currentDay = 29;
-	currentMonth = 3;
-	currentYear = 2020;
-	Date currentDate(currentDay, currentMonth, currentYear);
-
-
-	while (!inFile.eof()) {
-		// Read book information from the file
-		inFile.getline(book.title, sizeof(book.title));
-		inFile.getline(book.publisher, sizeof(book.publisher));
-		inFile.getline(book.ISBN, sizeof(book.ISBN));
-		inFile >> book.yearPublished;
-
-		for (int i = 0; i < 10; i++)
-			book.author[i] = NULL;
-		for (int i = 0; i < 10; i++) {
-			char author[100];
-			inFile.getline(author, sizeof(author));
-			if (strlen(author) > 0)
-				book.author[i] = new char[strlen(author) + 1];
-			strcpy(book.author[i], author);
-		}
-
-		inFile >> book.borrow.day >> book.borrow.month >> book.borrow.year;
-		inFile >> book.due.day >> book.due.month >> book.due.year;
-		inFile >> book.callNum;
-
-		// Calculate the fine for the book
-		int dueJulian = book.due.day + 30 * book.due.month + 365 * book.due.year;
-		int currentJulian = currentDate.day + 30 * currentDate.month + 365 * currentDate.year;
-		int daysOverdue = currentJulian - dueJulian;
-
-		if (daysOverdue > 0)
-			book.fine = 0.50 * daysOverdue;
-		else
-			book.fine = 0.0;
-
-		// Read the student ID to insert the book for that student
-		inFile >> id;
-
-		LibStudent student;
-		if (SearchStudent(list, id, student)) {
-			student.book[student.totalbook] = book;
-			student.totalbook++;
-			student.calculateTotalFine();
-		}
-		else {
-			cout << "Student with ID " << id << " not found. Skipping book insertion." << endl;
-		}
-	}
-
-	inFile.close();
-	return true;
-}
->>>>>>> d0d69bf441d20f9f0c2e31d63aeb9b2bf2b94f6d
 
 bool DeleteRecord(List* list, char* stuId) {
 
@@ -298,6 +275,7 @@ bool DeleteRecord(List* list, char* stuId) {
 	Node* cur;
 	cur = list->head;
 
+//-----------------------------later can change to searchStudent in main function---remember to return false if student not found
 	//loop all the element in link list to find student
 	for (int i = 1; i <= list->size(); i++) {
 
@@ -311,6 +289,7 @@ bool DeleteRecord(List* list, char* stuId) {
 			Node* show;
 			show = list->head;
 
+//---------------------can use function in LibStudent, print()---------------
 			for (int i = 1; i <= list->size(); i++) {
 				output << "Student Id\t= " << show->item.id << endl;
 				output << "Name\t= " << show->item.name << endl;
@@ -340,6 +319,7 @@ bool DeleteRecord(List* list, char* stuId) {
 				input.close();
 				output.close();
 				read.close();
+//-------------------------------------------I don't think the record is from "book.txt", the "book.txt store book, not student record"
 				remove("book.txt"); //delete book.txt 
 
 				rename("newbook.txt", "book.txt");
@@ -367,14 +347,15 @@ bool Display(List* list, int source, int detail) {
 		for (int i = 0; i < list->count; i++) {
 			
 			list->get(i, stu);
-			cout << "\nSTUDENT " << i << "\n";
+			cout << "\nSTUDENT " << i+1;
 			stu.print(cout);
 
 			if (detail == 1) {
 				bookCount = 0;
 				cout << "\nBOOK LIST:" << "\n";
 
-				while (stu.book[bookCount].title != nullptr) {
+				while (stu.book[i].title[0] != '\0') {
+					//empty check whether the size is 0
 					LibBook book = stu.book[bookCount];
 					cout << "\nBook " << bookCount+1 << "\n";
 					book.print(cout);
@@ -382,11 +363,7 @@ bool Display(List* list, int source, int detail) {
 				}
 				
 			}
-			else if (detail == 2) {
-				break;
-			}
-			cout << "\n**************************************************************"<<"\n";
-			
+			cout << "\n**************************************************************" << "\n";
 		}
 	}
 	else if (source == 2) {
@@ -401,20 +378,23 @@ bool Display(List* list, int source, int detail) {
 		outputFile.open(filename, fstream::app);
 		//If filename does not exist, the file is created. Otherwise, the fstream::app
 		//If file filename already exists, append the data to the file instead of overwriting it.
-		//if (!outputFile.is_open()) {
-		//	cout << filename << " not found, creating new file..." << endl;
-		//}
+		if (!outputFile.is_open()) {
+			cout << filename << " not found!" << endl;
+			return false;
+		}
 		for (int i = 0; i < list->count; i++) {
 			bookCount = 0;
 			list->get(i, stu);
 			stu.print(outputFile);
+
 			if (detail == 1) {
 				LibBook book = stu.book[bookCount];
 				
-				for (int i = 0; i < stu.totalbook; i++) {
+				while (stu.book[i].title[0] != '\0') {
+					LibBook book = stu.book[bookCount];
 					book.print(outputFile);
+					bookCount++;
 				}
-				bookCount++;
 			}
 		}
 		outputFile.close();
@@ -427,7 +407,6 @@ bool computeAndDisplayStatistics(List* list) {
 		return false;
 	}
 	LibStudent stu;
-	LibStudent* cur;
 	const int courses = 5;
 	string course[courses] = { "CS", "IA", "IB", "CN", "CT" };
 	int numOfStu[courses] = { 0,0,0,0,0 };
@@ -440,7 +419,7 @@ bool computeAndDisplayStatistics(List* list) {
 			if (stu.course == course[j]) {
 				numOfStu[j]++;
 				numOfBook[j] += stu.totalbook;
-				for (int k; k < stu.totalbook; i++) {
+				for (int k=0; k < stu.totalbook; k++) {
 					if (stu.book[k].fine) {
 						numOfOverdue[j]++;
 						total[j] += stu.book[k].fine;
@@ -451,15 +430,15 @@ bool computeAndDisplayStatistics(List* list) {
 	}
 	for (int i = 0; i < courses; i++) {
 		if (i == 0 || i == list->count - 1) {
-			cout << "------------------------------------------------------------" << endl;
+			cout << "----------------------------------------------------------------" << endl;
 			if (i == 0) {
-				cout << "| Course | Number of Students | Total Books Borrowed | Total Overdue Books |Total Overdue Fine (RM)|";
+				cout << "| Course | Number of Students | Total Books Borrowed | Total Overdue Books |Total Overdue Fine (RM)|\n ";
 			}
 		}
 		 
-		cout << course[i] << " | " << numOfStu << " | " << numOfBook << " | " << numOfOverdue << " | " << total;
+		cout << course[i] << " | " << numOfStu[i] << " | " << numOfBook[i] << " | " << numOfOverdue[i] << " | " << total[i]<<"\n";
 	}
-	
+	return true;
 }
 
 bool isInt(string &input) {
