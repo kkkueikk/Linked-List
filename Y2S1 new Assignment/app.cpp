@@ -8,26 +8,33 @@
 #include    "LibStudent.h"
 #include    "LibBook.h"
 
-
+#define MAX_CHOOSE 9
+#define ID_LENGTH 7
+#define ID_MIN 1000000
+#define ID_MAX 9999999
 using namespace std;
 
 bool ReadFile(string, List*);
-bool DeleteRecord(List*, char*);
-bool Display(List, int, int);
+//bool DeleteRecord(List*, char*);
+bool Display(List *, int, int);
+bool DeleteRecord(List* list, char* stuId);
 bool InsertBook(string, List*);
 bool SearchStudent(List*, char* id, LibStudent&);
 bool computeAndDisplayStatistics(List*);
 bool printStuWithSameBook(List*, char*);
 bool displayWarnedStudent(List*, List*, List*);
-int menu(int);
+void menu(int*);
 
+//input validation
+bool isInt(string& input);
+int getInputInRange(int minRange, int maxRange);
 
 int main() {
-	int choose{};
+	int choose;
 	bool exit = false;
-	choose = menu(choose);
 	List stdList;
 	string stuId;
+	menu(&choose);
 
 	while (!exit) {
 		switch (choose) {
@@ -35,59 +42,52 @@ int main() {
 			cout << "Read File" << endl;
 			if (!ReadFile("student.txt", &stdList))
 				cout << "Read file can't open!\n";
-			choose = menu(choose);
+			menu(&choose);
 			break;
 		case 2:
-			
-			bool check = false;
 			cout << "Delete record" << endl;
-			while (!check) {	
-
-				//input student Id
-				cout << "Enter the student id: ";
-				getline(cin, stuId);
-				
-				if (stuId.length()>9||stuId.length()<0) {
-					cout << "Pleace enter valid student Id,type again!!";
-					check = false;
-				}
-				else
-					check = true;
-			}
-
+			getInputInRange(ID_MIN, ID_MAX);
 			if (DeleteRecord(&stdList, &stuId[0])) {
 				cout << "Successfully Deleted!\n";
 			}
 			else
 				cout << "Student cannot be found\n";
-			choose = menu(choose);
+			menu(&choose);
 			break;
 		case 3:
 			cout << "Search student" << endl;
-			choose = menu(choose);
+			menu(&choose);
 
 			break;
 		case 4:
 			cout << "Insert book" << endl;
-			choose = menu(choose);
+			menu(&choose);
 
 			break;
 		case 5:
+			int source, detail;
 			cout << "Display output" << endl;
-			choose = menu(choose);
+			cout << "Where do you want to display the output (1 - File / 2 - Screen):"<<endl;
+
+			source = getInputInRange(1, 2);
+			cout << "Do you want to display book list for every student (1 - YES / 2 - NO):"<<endl;
+			detail = getInputInRange(1, 2);
+			Display(&stdList, source, detail);
+			menu(&choose);
 			break;
 		case 6:
 			cout << "Compute and Display Statictics" << endl;
-			choose = menu(choose);
+			computeAndDisplayStatistics(&stdList);
+			menu(&choose);
 			break;
 		case 7:
 			cout << "Student with Same Book" << endl;
-			choose = menu(choose);
+			menu(&choose);
 
 			break;
 		case 8:
 			cout << "Display Warned Student" << endl;
-			choose = menu(choose);
+			menu(&choose);
 
 			break;
 		case 9:
@@ -105,26 +105,39 @@ int main() {
 	return 0;
 }
 
-int menu(int choose) {
-	string selection[9] = { "Read file","Delete record","Search student","Insert book","Display output","Compute and Display Statistics","Student with Same Book","Display Warned Student","Exit" };
-	for (int i = 0; i < sizeof(selection) / sizeof(selection[0]); i++) {
+void menu(int* choose) {
+	string selection[MAX_CHOOSE] = { "Read file","Delete record","Search student","Insert book","Display output","Compute and Display Statistics","Student with Same Book","Display Warned Student","Exit" };
+	for (int i = 0; i < MAX_CHOOSE;i ++) {
 		cout << i + 1 << "." << selection[i] << "\n";
 	}
-	cout << "Enter your choice\t: ";
+	*choose = getInputInRange(1, MAX_CHOOSE);
+}
+
+int getInputInRange(int minRange, int maxRange) {
+	int input;
+	string string_input;
+
+	cout << "Please enter your choice from " << minRange << " to " << maxRange << ": ";
+	getline(cin, string_input);
 
 	while (true) {
-		if (cin >> choose && choose < 9 && choose>0) {
-			break;
+
+		if(!isInt(string_input)) {  //convert to string so can check character by character, solving situation like "3j"
+			cout << "Invalid input, please enter a valid integer: ";
 		}
 		else {
-			cin.clear();
-			string invalidInput;
-			getline(cin, invalidInput);
-			cout << "Please enter a valid choice\t: ";
+			input = stoi(string_input);  //convert to integer for range checking
+			if (input >= minRange && input <= maxRange) {
+				return input;
+			}
+			else {
+				cout << "Invalid range, please enter integer from " << minRange << " to " << maxRange << ": ";
+			}
 		}
+		
+		getline(cin, string_input);
 	}
-
-	return choose;
+	
 }
 
 bool ReadFile(string filename, List* list) {
@@ -145,7 +158,7 @@ bool ReadFile(string filename, List* list) {
 
 		for (int i = 0; i < 2; i++) read >> s;
 		read >> student.name;
-		read.getline(s, 265);
+		read.getline(s, 256);
 		strcat_s(student.name, s);
 
 		for (int i = 0; i < 2; i++) read >> s;
@@ -174,42 +187,42 @@ bool SearchStudent(List* list, char* id, LibStudent &stu) {
         return false;
     }
 
-bool InsertBook(string filename, List* list) {
-    ifstream inFile(filename);
-    if (!inFile.is_open()) {
-        cout << "Error opening file: " << filename << endl;
-        return false;
-    }
-
-    LibStudent newStudent;
-    while (inFile >> newStudent.name >> newStudent.id >> newStudent.course >> newStudent.phone_no) {
-        int numOfBooks;
-        inFile >> newStudent.total_fine >> newStudent.totalbook >> numOfBooks;
-
-        if (numOfBooks > 15) {
-            cout << "Number of books exceeds the maximum limit (15) for student " << newStudent.name << " (ID: " << newStudent.id << ")" << endl;
-            continue;
-        }
-
-        for (int i = 0; i < numOfBooks; i++) {
-            inFile >> newStudent.book[i].title >> newStudent.book[i].author >> newStudent.book[i].ISBN;
-        }
-
-        // Insert the new student with their book information into the list
-        if (!list->insert(newStudent)) {
-            cout << "Error inserting student " << newStudent.name << " (ID: " << newStudent.id << ") into the list." << endl;
-        }
-    }
-
-    inFile.close();
-    return true;
-}
+//bool InsertBook(string filename, List* list) {
+//    ifstream inFile(filename);
+//    if (!inFile.is_open()) {
+//        cout << "Error opening file: " << filename << endl;
+//        return false;
+//    }
+//
+//    LibStudent newStudent;
+//    while (inFile >> newStudent.name >> newStudent.id >> newStudent.course >> newStudent.phone_no) {
+//        int numOfBooks;
+//        inFile >> newStudent.total_fine >> newStudent.totalbook >> numOfBooks;
+//
+//        if (numOfBooks > 15) {
+//            cout << "Number of books exceeds the maximum limit (15) for student " << newStudent.name << " (ID: " << newStudent.id << ")" << endl;
+//            continue;
+//        }
+//
+//        for (int i = 0; i < numOfBooks; i++) {
+//            inFile >> newStudent.book[i].title >> newStudent.book[i].author >> newStudent.book[i].ISBN;
+//        }
+//
+//        // Insert the new student with their book information into the list
+//        if (!list->insert(newStudent)) {
+//            cout << "Error inserting student " << newStudent.name << " (ID: " << newStudent.id << ") into the list." << endl;
+//        }
+//    }
+//
+//    inFile.close();
+//    return true;
+//}
 
 bool DeleteRecord(List* list, char* stuId) {
 
 	//check 
 	if (list->empty()) {
-		cout << "No shudent in the record!\n";
+		cout << "No shudent in list yet!\n";
 		return false;
 	}
 	
@@ -218,7 +231,6 @@ bool DeleteRecord(List* list, char* stuId) {
 
 	//loop all the element in link list to find student
 	for (int i = 1; i <= list->size(); i++) {
-
 
 		if (cur->item.id == stuId) {
 			list->remove(i);
@@ -239,7 +251,7 @@ bool DeleteRecord(List* list, char* stuId) {
 				show = show->next;
 			}
 
-			//delete student in bookk.txt record
+			//delete student in book.txt record
 			ofstream read;
 			ifstream input;
 
@@ -259,7 +271,7 @@ bool DeleteRecord(List* list, char* stuId) {
 				input.close();
 				output.close();
 				read.close();
-				remove("book.txt"); //delet book.txt 
+				remove("book.txt"); //delete book.txt 
 
 				rename("newbook.txt", "book.txt");
 
@@ -273,4 +285,123 @@ bool DeleteRecord(List* list, char* stuId) {
 			return false;
 		}
 	}
+
+}
+
+bool Display(List* list, int source, int detail) {
+	//source determine where to print the output
+	//detail determine what info to print
+	LibStudent stu;
+	int bookCount;
+	//list is a pointer for list, we can modify the object
+	if (source == 1) {
+		for (int i = 0; i < list->count; i++) {
+			
+			list->get(i, stu);
+			cout << "\nSTUDENT " << i << "\n";
+			stu.print(cout);
+
+			if (detail == 1) {
+				bookCount = 0;
+				cout << "\nBOOK LIST:" << "\n";
+
+				while (stu.book[bookCount].title != nullptr) {
+					LibBook book = stu.book[bookCount];
+					cout << "\nBook " << bookCount+1 << "\n";
+					book.print(cout);
+					bookCount++;
+				}
+				
+			}
+			else if (detail == 2) {
+				break;
+			}
+			cout << "\n**************************************************************"<<"\n";
+			
+		}
+	}
+	else if (source == 2) {
+		ofstream outputFile;
+		string filename;
+		if(detail==1){
+			filename = "student_booklist.txt";
+		}
+		else if (detail == 2) {
+			filename = "student_info.txt";
+		}
+		outputFile.open(filename, fstream::app);
+		//If filename does not exist, the file is created. Otherwise, the fstream::app
+		//If file filename already exists, append the data to the file instead of overwriting it.
+		//if (!outputFile.is_open()) {
+		//	cout << filename << " not found, creating new file..." << endl;
+		//}
+		for (int i = 0; i < list->count; i++) {
+			bookCount = 0;
+			list->get(i, stu);
+			stu.print(outputFile);
+			if (detail == 1) {
+				LibBook book = stu.book[bookCount];
+				
+				for (int i = 0; i < stu.totalbook; i++) {
+					book.print(outputFile);
+				}
+				bookCount++;
+			}
+		}
+		outputFile.close();
+	}
+	return true;
+}
+
+bool computeAndDisplayStatistics(List* list) {
+	if (list->empty()) {
+		return false;
+	}
+	LibStudent stu;
+	LibStudent* cur;
+	const int courses = 5;
+	string course[courses] = { "CS", "IA", "IB", "CN", "CT" };
+	int numOfStu[courses] = { 0,0,0,0,0 };
+	int numOfBook[courses] = { 0,0,0,0,0 };
+	int numOfOverdue[courses] = { 0,0,0,0,0 };
+	double total[courses] = { 0.00,0.00,0.00,0.00,0.00 };
+	for (int i = 0; i < list->count; i++) {
+		list->get(i, stu);
+		for (int j = 0; j < courses; j++) {
+			if (stu.course == course[j]) {
+				numOfStu[j]++;
+				numOfBook[j] += stu.totalbook;
+				for (int k; k < stu.totalbook; i++) {
+					if (stu.book[k].fine) {
+						numOfOverdue[j]++;
+						total[j] += stu.book[k].fine;
+					}
+				}
+			}
+		}
+	}
+	for (int i = 0; i < courses; i++) {
+		if (i == 0 || i == list->count - 1) {
+			cout << "------------------------------------------------------------" << endl;
+			if (i == 0) {
+				cout << "| Course | Number of Students | Total Books Borrowed | Total Overdue Books |Total Overdue Fine (RM)|";
+			}
+		}
+		 
+		cout << course[i] << " | " << numOfStu << " | " << numOfBook << " | " << numOfOverdue << " | " << total;
+	}
+	
+}
+
+bool isInt(string &input) {
+	for (char s: input) {
+		//iterate each character
+		if (!isdigit(s)) {
+			//isdigit takes "int" or "unsigned char" as parameters
+			//strlen can also be used to calculate string length
+			//for (int i = 0; i < strlen(str); i++) 
+			return false;
+		}
+	}
+	return true;
 }
