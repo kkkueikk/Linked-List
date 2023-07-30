@@ -187,6 +187,7 @@ bool SearchStudent(List* list, char* id, LibStudent &stu) {
         return false;
     }
 
+<<<<<<< HEAD
 //bool InsertBook(string filename, List* list) {
 //    ifstream inFile(filename);
 //    if (!inFile.is_open()) {
@@ -217,6 +218,74 @@ bool SearchStudent(List* list, char* id, LibStudent &stu) {
 //    inFile.close();
 //    return true;
 //}
+=======
+bool InsertBook(string filename, List* list) {
+	ifstream inFile;
+	inFile.open("book.txt");
+
+	if (!inFile.is_open()) {
+		cout << "Failed to open the file: " << endl;
+		return false;
+	}
+
+	LibBook book;
+	char id[10];
+	int currentDay, currentMonth, currentYear;
+	currentDay = 29;
+	currentMonth = 3;
+	currentYear = 2020;
+	Date currentDate(currentDay, currentMonth, currentYear);
+
+
+	while (!inFile.eof()) {
+		// Read book information from the file
+		inFile.getline(book.title, sizeof(book.title));
+		inFile.getline(book.publisher, sizeof(book.publisher));
+		inFile.getline(book.ISBN, sizeof(book.ISBN));
+		inFile >> book.yearPublished;
+
+		for (int i = 0; i < 10; i++)
+			book.author[i] = NULL;
+		for (int i = 0; i < 10; i++) {
+			char author[100];
+			inFile.getline(author, sizeof(author));
+			if (strlen(author) > 0)
+				book.author[i] = new char[strlen(author) + 1];
+			strcpy(book.author[i], author);
+		}
+
+		inFile >> book.borrow.day >> book.borrow.month >> book.borrow.year;
+		inFile >> book.due.day >> book.due.month >> book.due.year;
+		inFile >> book.callNum;
+
+		// Calculate the fine for the book
+		int dueJulian = book.due.day + 30 * book.due.month + 365 * book.due.year;
+		int currentJulian = currentDate.day + 30 * currentDate.month + 365 * currentDate.year;
+		int daysOverdue = currentJulian - dueJulian;
+
+		if (daysOverdue > 0)
+			book.fine = 0.50 * daysOverdue;
+		else
+			book.fine = 0.0;
+
+		// Read the student ID to insert the book for that student
+		inFile >> id;
+
+		LibStudent student;
+		if (SearchStudent(list, id, student)) {
+			student.book[student.totalbook] = book;
+			student.totalbook++;
+			student.calculateTotalFine();
+		}
+		else {
+			cout << "Student with ID " << id << " not found. Skipping book insertion." << endl;
+		}
+	}
+
+	inFile.close();
+	return true;
+}
+>>>>>>> d0d69bf441d20f9f0c2e31d63aeb9b2bf2b94f6d
 
 bool DeleteRecord(List* list, char* stuId) {
 
