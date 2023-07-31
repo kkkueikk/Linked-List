@@ -4,6 +4,7 @@
 #include    <fstream>
 #include	<iomanip>
 #include    <string>
+#include <sstream>
 #include	"List.h"
 #include    "LibStudent.h"
 #include    "LibBook.h"
@@ -23,6 +24,7 @@ bool computeAndDisplayStatistics(List*);
 bool printStuWithSameBook(List*, char*);
 bool displayWarnedStudent(List*, List*, List*);
 void menu(int*);
+bool readBookFile(List *, string filename);
 
 //input validation
 bool isInt(string& input);
@@ -69,6 +71,7 @@ int main() {
 			break;
 		case 4:
 			cout << "Insert book" << endl;
+			readBookFile(&stdList, "book.txt");
 			menu(&choose);
 
 			break;
@@ -276,6 +279,61 @@ bool SearchStudent(List* list, char* id, LibStudent &stu) {
 //	inFile.close();
 //	return true;
 //}
+
+bool readBookFile(List* list, string filename) {
+	ifstream inputFile;
+	inputFile.open(filename);
+	if (!inputFile.is_open()) {
+		cout << filename << " not found!" << endl;
+		return false;
+	}
+	LibStudent stu;
+	LibBook book;
+	string stuID, title, author, publisher, ISBN, yearPublished, callNum, borrow, due, temp;
+	while (true){
+	//Student_id  author/authors  title  publisher  ISBN  yearPublished  callNum  date_borrow  date_due 
+		getline(inputFile, stuID, '\t');
+		getline(inputFile, temp, ' ');
+		getline(inputFile, author, ' ');
+		getline(inputFile, title, ' ');
+		getline(inputFile, publisher, ' ');
+		getline(inputFile, ISBN, ' ');
+		getline(inputFile, yearPublished, ' ');
+		getline(inputFile, callNum, ' ');
+		getline(inputFile, borrow, ' ');
+		getline(inputFile, due);
+		getline(inputFile, temp);
+		getline(inputFile, temp);
+		cout << stuID << endl;
+		if (inputFile.eof()) {
+				break;
+		}
+		//-----------can minimise code
+		const char* tmp = &stuID[0];
+		SearchStudent(list, (char*)tmp, stu);
+		strcpy_s(book.title, (char*)title.c_str());
+		// Allocate memory for author[i] and copy the author name
+		//char* authors[10];
+		//author.substr(author.find('/');
+		strcpy_s(book.publisher, (char*)publisher.c_str());
+		strcpy_s(book.ISBN, (char*)ISBN.c_str());
+		strcpy_s(book.callNum, (char*)callNum.c_str());
+		/*book.yearPublished=stoi(yearPublished);*/
+		stringstream ss(borrow);
+		string part;
+		Date date;
+		date.day = stoi(part);
+		date.month = stoi(part);
+		date.year = stoi(part);
+		book.borrow = date;
+		book.borrow.print(cout);
+	}
+
+
+	return true;
+}
+
+
 
 bool DeleteRecord(List* list, char* stuId) {
 
