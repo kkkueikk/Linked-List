@@ -129,7 +129,9 @@
   <ItemGroup>
     <ClCompile Include="app.cpp" />
     <ClCompile Include="Date.cpp" />
-    <ClCompile Include="LibBook.cpp" />
+    <ClCompile Include="LibBook.cpp">
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
     <ClCompile Include="LibStudent.cpp" />
     <ClCompile Include="List.cpp" />
     <ClCompile Include="Node.cpp" />

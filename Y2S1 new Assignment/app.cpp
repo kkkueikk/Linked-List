@@ -20,6 +20,7 @@ bool DeleteRecord(List*, char*);
 bool Display(List *, int, int);
 //bool InsertBook(string, List*);
 bool SearchStudent(List*, char* id, LibStudent&);
+void split(const string& string1, string arr1[]);
 bool computeAndDisplayStatistics(List*);
 bool printStuWithSameBook(List*, char*);
 bool displayWarnedStudent(List*, List*, List*);
@@ -308,33 +309,60 @@ bool readBookFile(List* list, string filename) {
 		if (inputFile.eof()) {
 				break;
 		}
-		//-----------can minimise code
+
 		const char* tmp = &stuID[0];
 		SearchStudent(list, (char*)tmp, stu);
 		strcpy_s(book.title, (char*)title.c_str());
-		// Allocate memory for author[i] and copy the author name
-		//char* authors[10];
-		//author.substr(author.find('/');
 		strcpy_s(book.publisher, (char*)publisher.c_str());
 		strcpy_s(book.ISBN, (char*)ISBN.c_str());
 		strcpy_s(book.callNum, (char*)callNum.c_str());
-		/*book.yearPublished=stoi(yearPublished);*/
-		stringstream ss(borrow);
-		string part;
+		book.yearPublished=stoi(yearPublished);
+		cout << yearPublished << endl;
+		//for converting borrow and due into Date
+		string datePart[3];
 		Date date;
-		date.day = stoi(part);
-		date.month = stoi(part);
-		date.year = stoi(part);
-		book.borrow = date;
-		book.borrow.print(cout);
+		split(borrow, datePart);
+		book.borrow = Date(stoi(datePart[0]), stoi(datePart[1]), stoi(datePart[2]));
+		
+		split(due, datePart);
+		book.due = Date(stoi(datePart[0]), stoi(datePart[1]), stoi(datePart[2]));
+		
+		//for splitting authors
+		string name[10];
+		split(author, name);
+		int i = 0;
+
+		while (i < 10 && !name[i].empty()) { //assign name to author one by one
+			book.author[i] = new char[name[i].length() + 1];
+			strcpy_s(book.author[i], name[i].length() + 1, name[i].c_str());
+			cout << book.author[i] << endl;
+			i++;
+		}
+
+		int stuBookCount = 
 	}
-
-
 	return true;
 }
 
+//no need & before array because array is passed as pointer
+void split(const string& string1, string arr1[]) {
+	if (string1.find('/')) {
+		stringstream ss(string1);
+		string token;
+		int index = 0;
 
+		while (getline(ss, token, '/')) { //if there is no need of splitting
+			arr1[index++] = token;
+		}
+	}
+	else {
+		arr1[0] = string1;
+	}
+}
 
+double calculateFine(LibStudent stuList[]) {
+
+}
 bool DeleteRecord(List* list, char* stuId) {
 
 	//check 
