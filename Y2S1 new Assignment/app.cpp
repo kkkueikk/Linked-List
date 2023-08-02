@@ -13,6 +13,9 @@
 #define ID_LENGTH 7
 #define ID_MIN 1000000
 #define ID_MAX 9999999
+#define JUDIAN_DAY 29;
+#define JUDIAN_MONTH 3;
+#define JUDIAN_YEAR 2020;
 using namespace std;
 
 bool ReadFile(string, List*);
@@ -26,7 +29,7 @@ bool printStuWithSameBook(List*, char*);
 bool displayWarnedStudent(List*, List*, List*);
 void menu(int*);
 bool readBookFile(List *, string filename);
-
+void calculateFine(LibBook& book);
 //input validation
 bool isInt(string& input);
 int getInputInRange(int minRange, int maxRange);
@@ -216,7 +219,7 @@ bool SearchStudent(List* list, char* id, LibStudent &stu) {
 //	LibBook book;
 //	char id[10];
 //	int currentDay, currentMonth, currentYear;
-// ---------------------------I think you need to use Julian date library to get today's date instead of hardcoded yourself
+
 //	currentDay = 29;
 //	currentMonth = 3;
 //	currentYear = 2020;
@@ -252,16 +255,7 @@ bool SearchStudent(List* list, char* id, LibStudent &stu) {
 //		inFile >> book.callNum;
 //
 // ----------------------------------------use Julian library ---------------------------
-//		// Calculate the fine for the book
-//		int dueJulian = book.due.day + 30 * book.due.month + 365 * book.due.year;
-//		int currentJulian = currentDate.day + 30 * currentDate.month + 365 * currentDate.year;
-//		int daysOverdue = currentJulian - dueJulian;
-//
-//		if (daysOverdue > 0)
-//			book.fine = 0.50 * daysOverdue;
-//		else
-//			book.fine = 0.0;
-//
+
 //		// Read the student ID to insert the book for that student
 //		inFile >> id;
 //
@@ -338,8 +332,28 @@ bool readBookFile(List* list, string filename) {
 			cout << book.author[i] << endl;
 			i++;
 		}
+		calculateFine(book);
 
-		int stuBookCount = 
+		i = 0;
+		while (stu.book[i].title.length()!=0) {
+			i++;
+		}
+		if (i >= 15) {
+			return false;
+		}
+		else {
+			book[i]
+		}
+		int bookCount = sizeof(stu.book)/sizeof(book);
+		if (bookCount <= 15) {
+			stu.book[bookCount] = book;
+		}
+		else {
+			cout << "This student "<< stu.id << " has borrow more than 15 books!" << endl;
+			return false;
+		}
+		
+		stu.calculateTotalFine();
 	}
 	return true;
 }
@@ -360,8 +374,17 @@ void split(const string& string1, string arr1[]) {
 	}
 }
 
-double calculateFine(LibStudent stuList[]) {
+void calculateFine(LibBook &book) {
+	    Date currentDate(29,3,2020);
+		// Calculate the fine for the book
+		int dueJulian = book.due.day + 30 * book.due.month + 365 * book.due.year;
+		int currentJulian = currentDate.day + 30 * currentDate.month + 365 * currentDate.year;
+		int daysOverdue = currentJulian - dueJulian;
 
+		if (daysOverdue > 0)
+			book.fine = 0.50 * daysOverdue;
+		else
+			book.fine = 0.0;
 }
 bool DeleteRecord(List* list, char* stuId) {
 
