@@ -207,73 +207,73 @@ bool SearchStudent(List* list, char* id, LibStudent &stu) {
     }
 
 
-//bool InsertBook(string filename, List* list) {
-//	ifstream inFile;
-//	inFile.open("book.txt");
-//
-//	if (!inFile.is_open()) {
-//		cout << "Failed to open the file: " << endl;
-//		return false;
-//	}
-//
-//	LibBook book;
-//	char id[10];
-//	int currentDay, currentMonth, currentYear;
+bool InsertBook(string filename, List* list) {
+	ifstream inFile;
+	inFile.open("book.txt");
 
-//	currentDay = 29;
-//	currentMonth = 3;
-//	currentYear = 2020;
-//	Date currentDate(currentDay, currentMonth, currentYear);
-//
-//
-//	while (!inFile.eof()) {
-//		// Read book information from the file
-// 
-// --------------------------------where is your student id?-----------------------
-// --------------------------------correct format of book.txt: studentId author( if there are multiple author, they will be separated by "/") bookTitle publisher ISBN publishYear callNum borrow due
-// --------------------------------for author you should use delimiter! go online and search getline() for infor of delimiter
-// --------------------------------after reading the data, you should also store it in the list(your second argument), I personally suggest you to do the reading and storing of data from book.txt in another function, Ex:readBookFile()
-//		inFile.getline(book.title, sizeof(book.title));
-//		inFile.getline(book.publisher, sizeof(book.publisher));
-//		inFile.getline(book.ISBN, sizeof(book.ISBN));
-//		inFile >> book.yearPublished;
-//
-//		for (int i = 0; i < 10; i++)
-//			book.author[i] = NULL;
-//		for (int i = 0; i < 10; i++) {
-//			char author[100];
-//			inFile.getline(author, sizeof(author));
-//			if (strlen(author) > 0)
-//				book.author[i] = new char[strlen(author) + 1];
-//			strcpy(book.author[i], author);
-// 
-// ----------------------------------------I think strcpy is not good enough to be used? Like what we learn in cybersecurity class, it is not secure enough ya
-//		}
-//
-//		inFile >> book.borrow.day >> book.borrow.month >> book.borrow.year;
-//		inFile >> book.due.day >> book.due.month >> book.due.year;
-//		inFile >> book.callNum;
-//
-// ----------------------------------------use Julian library ---------------------------
+	if (!inFile.is_open()) {
+		cout << "Failed to open the file: " << endl;
+		return false;
+	}
 
-//		// Read the student ID to insert the book for that student
-//		inFile >> id;
-//
-// --------------------------this checking should be on top of your function, then you return false if insertion cannot be done, continue insertion if student is found!
-//		LibStudent student;
-//		if (SearchStudent(list, id, student)) {
-//			student.book[student.totalbook] = book;
-//			student.totalbook++;
-//			student.calculateTotalFine();
-//		}
-//		else {
-//			cout << "Student with ID " << id << " not found. Skipping book insertion." << endl;
-//		}
-//	}
-//
-//	inFile.close();
-//	return true;
-//}
+	LibBook book;
+	char id[10];
+	int currentDay, currentMonth, currentYear;
+	currentDay = 30;
+	currentMonth = 7;
+	currentYear = 2023;
+	Date currentDate(currentDay, currentMonth, currentYear);
+
+	LibStudent student;
+	if (SearchStudent(list, id, student)) {
+		student.book[student.totalbook] = book;
+		student.totalbook++;
+		student.calculateTotalFine();
+	}
+	else {
+		cout << "Student with ID " << id << " not found. Skipping book insertion." << endl;
+	}
+
+	while (!inFile.eof()) {
+		// Read book information from the file
+		inFile >> student.id;
+		inFile.getline(book.title, sizeof(book.title));
+		inFile.getline(book.publisher, sizeof(book.publisher));
+		inFile.getline(book.ISBN, sizeof(book.ISBN));
+		inFile >> book.yearPublished;
+
+		for (int i = 0; i < 10; i++)
+			book.author[i] = NULL;
+		for (int i = 0; i < 10; i++) {
+			char author[100];
+			inFile.getline(author, sizeof(author));
+			if (strlen(author) > 0)
+				book.author[i] = new char[strlen(author) + 1];
+			strcpy(book.author[i], author);
+		}
+
+		inFile >> book.borrow.day >> book.borrow.month >> book.borrow.year;
+		inFile >> book.due.day >> book.due.month >> book.due.year;
+		inFile >> book.callNum;
+
+		// Calculate the fine for the book
+		int dueJulian = book.due.day + 30 * book.due.month + 365 * book.due.year;
+		int currentJulian = currentDate.day + 30 * currentDate.month + 365 * currentDate.year;
+		int daysOverdue = currentJulian - dueJulian;
+
+		if (daysOverdue > 0)
+			book.fine = 0.50 * daysOverdue;
+		else
+			book.fine = 0.0;
+
+		// Read the student ID to insert the book for that student
+		inFile >> id;
+		
+	}
+
+	inFile.close();
+	return true;
+}
 
 bool readBookFile(List* list, string filename) {
 	ifstream inputFile;
