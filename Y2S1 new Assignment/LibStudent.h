@@ -21,7 +21,7 @@ struct LibStudent
 	bool compareName1(LibStudent); //use >=
 	bool compareName2(LibStudent); //use ==
 	void print(ostream&);
-
+	
 };
 
 #endif

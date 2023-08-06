@@ -1,3 +1,4 @@
 ﻿  app.cpp
-C:\Users\jypoo\Linked-List\Y2S1 new Assignment\app.cpp(338,28): error C2228: left of '.length' must have class/struct/union
-C:\Users\jypoo\Linked-List\Y2S1 new Assignment\app.cpp(338,28): message : type is 'char [250]'
+C:\Users\jiahu\Linked-List\Y2S1 new Assignment\app.cpp(47,7): warning C4101: 'stuIDStr': unreferenced local variable
+C:\Users\jiahu\Linked-List\Y2S1 new Assignment\app.cpp(484): warning C4715: 'DeleteRecord': not all control paths return a value
+  Y2S1 new Assignment.vcxproj -> C:\Users\jiahu\Linked-List\x64\Debug\Y2S1 new Assignment.exe
