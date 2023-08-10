@@ -47,11 +47,15 @@ int main() {
 	int stuID;
 	char stuIDStr[8];
 	LibStudent stu;
+	string bookId;
+	List type1;
+	List type2;
 
 
 	while (!exit) {
 		switch (choose) {
 		case 1:
+			//Guan Yuan (done)
 			system("cls");
 			cout << "Read File" << endl;
 			if (!ReadFile("student.txt", &stdList))
@@ -59,6 +63,7 @@ int main() {
 			menu(&choose);
 			break;
 		case 2:
+			//Guan Yuan (done)
 			system("cls");
 			cout << "Delete record" << endl;
 			cout << "Please give the student ID" << endl;
@@ -69,6 +74,7 @@ int main() {
 			menu(&choose);
 			break;
 		case 3:
+			//Ethan (done)
 			system("cls");
 			cout << "Search student" << endl;
 			cout << "Please give the student ID" << endl;
@@ -84,12 +90,14 @@ int main() {
 			menu(&choose);
 			break;
 		case 4:
+			//Ethan in prograss
 			system("cls");
 			cout << "Insert book" << endl;
 			InsertBook("book.txt", &stdList);
 			menu(&choose);
 			break;
 		case 5:
+			//Eng Yi in prograss
 			system("cls");
 			int source, detail;
 			cout << "Displaying output..." << "\n\n";
@@ -104,20 +112,35 @@ int main() {
 			menu(&choose);
 			break;
 		case 6:
+			//Eng Yi in prograss
 			system("cls");
 			cout << "Compute and Display Statictics" << endl;
 			computeAndDisplayStatistics(&stdList);
 			menu(&choose);
 			break;
+
 		case 7:
+			//Huan Qian in prograss
+			
 			system("cls");
-			cout << "Student with Same Book" << endl;
+			cout << "Please enter a book to Serach:";
+			getline(cin, bookId);
+
+			while (bookId.length() > 20 || bookId == "") {
+				cout << "Please enter a correct book Id:";
+				getline(cin, bookId);
+			}
+			printStuWithSameBook(&stdList, &bookId[0]);
 			menu(&choose);
 
 			break;
+
 		case 8:
+			//Huan Qian in prograss
 			system("cls");
 			cout << "Display Warned Student" << endl;
+			cout << "================================================================" << endl;
+			displayWarnedStudent(&stdList, &type1, &type2);
 			menu(&choose);
 
 			break;
@@ -135,6 +158,7 @@ int main() {
 	system("pause");
 	return 0;
 }
+
 
 void menu(int* choose) {
 	string selection[MAX_CHOOSE] = { "Read file","Delete record","Search student","Insert book","Display output","Compute and Display Statistics","Student with Same Book","Display Warned Student","Exit" };
@@ -246,14 +270,14 @@ bool isDuplicateID(List *list, string id) {
 }
 
 bool SearchStudent(List* list, char* id, LibStudent &stu) {
-        Node* current = list->head;
-        while (current != nullptr) {
-            if (current->item.id == id) {
-                stu = current->item; 
+        Node* cur = list->head;
+        while (cur != nullptr) {
+            if (strcmp(cur->item.id,id)==0) {
+                stu = cur->item; 
 				cout << "\n";
                 return true;
             }
-            current = current->next;
+            cur = cur->next;
         }
         return false;
 }
@@ -346,8 +370,9 @@ bool InsertBook(string filename, List* list) {
 	string temp;
 	int num;
 	string borrow_date_part[3], due_date_part[3];
-	cout << "Give the ID of the student you want to insert the book: ";
+	cout << "Give the ID of the student you want to insert the book,\n";
 	const char* stuID = &(to_string(getInputInRange(ID_MIN, ID_MAX))[0]);
+	cout << stuID << endl;
 	if (!SearchStudent(list, (char*)stuID, stu)) {
 		cout << "Quit Insertion" << endl;
 		return false;
@@ -457,7 +482,6 @@ int leap(int year)
 		return 0;
 }
 
-//changed : delete a student from the linked list based on student id
 bool DeleteRecord(List* list, char* stuId) {
 
 	Node* cur;
@@ -502,10 +526,10 @@ bool Display(List* list, int source, int detail) {
 	}
 
 	if (source == 2) {
-		for (int i = 0; i < list->count; i++) {
+		for (int i = 1; i < list->count; i++) {
 			
 			list->get(i, stu);
-			cout << "\nSTUDENT " << i+1;
+			cout << "\nSTUDENT " << i;
 			stu.print(cout);
 
 
@@ -532,12 +556,12 @@ bool Display(List* list, int source, int detail) {
 		//If filename does not exist, the file is created. Otherwise, the fstream::app
 		//If file filename already exists, append the data to the file instead of overwriting it.
 
-		for (int i = 0; i < list->count; i++) {
+		for (int i = 1; i < list->count; i++) {
 			list->get(i, stu);
 			stu.print(outputFile);
 
 			if (detail == 1) {
-				for(int i=0;i<stu.totalbook;i++){
+				for (int i = 0; i < stu.totalbook; i++) {
 					stu.book[i].print(outputFile);
 				}
 			}
@@ -554,7 +578,7 @@ bool computeAndDisplayStatistics(List* list) {
 	}
 	LibStudent stu;
 	const int courses = 5;
-	string course[courses] = { "CS", "IA", "IB", "CN", "CT" };
+	string course[courses] = { " CS", " IA", " IB", " CN", " CT" };
 	int numOfStu[courses] = { 0,0,0,0,0 };
 	int numOfBook[courses] = { 0,0,0,0,0 };
 	int numOfOverdue[courses] = { 0,0,0,0,0 };
@@ -578,11 +602,11 @@ bool computeAndDisplayStatistics(List* list) {
 		if (i == 0 || i == list->count - 1) {
 			cout << "----------------------------------------------------------------" << endl;
 			if (i == 0) {
-				cout << "| Course | Number of Students | Total Books Borrowed | Total Overdue Books |Total Overdue Fine (RM)|\n ";
+				cout << "| Course\t| Number of Students\t| Total Books Borrowed\t| Total Overdue Books \t|Total Overdue Fine (RM)|\n";
 			}
 		}
 		 
-		cout << course[i] << " | " << numOfStu[i] << " | " << numOfBook[i] << " | " << numOfOverdue[i] << " | " << total[i]<<"\n";
+		cout <<"|" << course[i] << "\t\t| " << numOfStu[i] << "\t\t\t| " << numOfBook[i] << "\t\t\t| " << numOfOverdue[i] << " \t\t\t| " << total[i] << "\n";
 	}
 	return true;
 }
@@ -601,3 +625,151 @@ bool isInt(string &input) {
 	return true;
 }
 
+//huanQian
+bool printStuWithSameBook(List* list, char* callNum)
+{
+	List sameBook;
+	int numOfStud = 0;//number of Student
+	//int count = 0;
+	LibStudent info;
+	Node* ptr = list->head;
+
+	if (!list->empty()) {
+
+		while (ptr != NULL) {
+
+			info = ptr->item;
+
+			for (int i = 0; i < 15; i++) {
+				//Student who did not borrow any book
+				if (strlen(info.book[i].callNum) == 1) {
+
+					break;
+				}
+
+				else {
+					if (strcmp(info.book[i].callNum, callNum)) {
+						sameBook.insert(info);
+						numOfStud += 1;
+						break;
+					}
+				}
+			}
+			ptr = ptr->next;
+		}
+
+		cout << "***********************************************************************" << endl;
+		cout << "There are " << numOfStud << " students borrow the book with call number " << callNum << " as shown below: " << endl << endl;
+
+		if (numOfStud != 0) {
+
+			ptr = sameBook.head;
+			while (ptr != NULL) {
+				cout << "Student ID = " << ptr->item.id << endl;
+				cout << "Name = " << ptr->item.name << endl;
+				cout << "Course = " << ptr->item.course << endl;
+				cout << "Phone Number = " << ptr->item.phone_no << endl;
+				cout << "Borrow Date = "; ptr->item.book[0].borrow.print(cout); cout << endl;
+				cout << "Due Date = "; ptr->item.book[0].due.print(cout); cout << endl;
+				cout << endl;
+				ptr = ptr->next;
+			}
+		}
+		cout << "*************************************************************************" << endl;
+		return true;
+	}
+	else {
+		cout << "No student borrow this book." << endl;
+		return false;
+	}
+
+}
+
+bool displayWarnedStudent(List* list, List* type1, List* type2)
+{
+	if (list->empty())
+	{
+		cout << "No student in the record.\n";
+		return false;
+	}
+	else
+	{
+		Date currentDate;
+		currentDate.day = 29;
+		currentDate.month = 3;
+		currentDate.year = 2020;
+		cout << "Current Date : ", currentDate.print(cout);
+		cout << endl;
+
+		LibStudent studInfo;
+		Node* listPtr = list->head;
+		int count = 1;
+
+		while (listPtr != NULL)
+		{
+			list->get(count, studInfo);
+			int overDue = 0;
+			int checkDueBook = 0;
+			for (int i = 0; i < listPtr->item.totalbook; i++) {
+				if (listPtr->item.total_fine > 5) {
+					overDue = overDue + 1;
+				}
+			}
+			if (overDue > 2) {
+				type1->insert(studInfo);
+			}
+
+			for (int i = 0; i < listPtr->item.totalbook; i++) {
+				if (listPtr->item.book[i].fine != 0) {
+					checkDueBook = checkDueBook + 1;
+				}
+			}
+			if ((checkDueBook == listPtr->item.totalbook) && (listPtr->item.total_fine > 50)) {
+				type2->insert(studInfo);
+			}
+			listPtr = listPtr->next;
+			count++;
+
+		}
+
+		//display student and book of type1 and type2
+		if (type1->empty()) {
+			cout << "No type 1 List" << endl;
+
+		}
+		else {
+			cout << "\nType 1 warning: " << endl;
+			Node* ptr = type1->head;
+			int stuCounter = 1;
+
+			while (ptr != NULL)
+			{
+				cout << "Student " << stuCounter << endl;
+				cout << "Student Id = " << ptr->item.id << endl;
+				cout << "Name = " << ptr->item.name << endl;
+				cout << "Course =" << ptr->item.course << endl;
+
+				ptr = ptr->next;
+				stuCounter++;
+			}
+		}
+
+		if (!type2->empty())
+		{
+			cout << "\nType 2 warning: " << endl;
+			Node* ptr = type2->head;
+			int stuCounter = 1;
+
+			while (ptr != NULL) {
+				cout << "Student " << stuCounter << endl;
+				cout << "Student Id = " << ptr->item.id << endl;
+				cout << "Name = " << ptr->item.name << endl;
+				cout << "Course =" << ptr->item.course << endl;
+
+				ptr = ptr->next;
+				stuCounter++;
+			}
+		}
+		return true;
+	}
+}
