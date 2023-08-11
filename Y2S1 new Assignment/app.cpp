@@ -47,6 +47,9 @@ int main() {
 	int stuID;
 	char stuIDStr[8];
 	LibStudent stu;
+	string bookId;
+	List type1;
+	List type2;
 
 
 	while (!exit) {
@@ -118,15 +121,26 @@ int main() {
 
 		case 7:
 			//Huan Qian in prograss
+			
 			system("cls");
-			cout << "Student with Same Book" << endl;
+			cout << "Please enter a book to Serach:";
+			getline(cin, bookId);
+
+			while (bookId.length() > 20 || bookId == "") {
+				cout << "Please enter a correct book Id:";
+				getline(cin, bookId);
+			}
+			printStuWithSameBook(&stdList, &bookId[0]);
 			menu(&choose);
+
 			break;
 
 		case 8:
 			//Huan Qian in prograss
 			system("cls");
 			cout << "Display Warned Student" << endl;
+			cout << "================================================================" << endl;
+			displayWarnedStudent(&stdList, &type1, &type2);
 			menu(&choose);
 
 			break;
@@ -512,10 +526,10 @@ bool Display(List* list, int source, int detail) {
 	}
 
 	if (source == 2) {
-		for (int i = 0; i < list->count; i++) {
+		for (int i = 1; i < list->count; i++) {
 			
 			list->get(i, stu);
-			cout << "\nSTUDENT " << i+1;
+			cout << "\nSTUDENT " << i;
 			stu.print(cout);
 
 
@@ -542,12 +556,12 @@ bool Display(List* list, int source, int detail) {
 		//If filename does not exist, the file is created. Otherwise, the fstream::app
 		//If file filename already exists, append the data to the file instead of overwriting it.
 
-		for (int i = 0; i < list->count; i++) {
+		for (int i = 1; i < list->count; i++) {
 			list->get(i, stu);
 			stu.print(outputFile);
 
 			if (detail == 1) {
-				for(int i=0;i<stu.totalbook;i++){
+				for (int i = 0; i < stu.totalbook; i++) {
 					stu.book[i].print(outputFile);
 				}
 			}
@@ -564,7 +578,7 @@ bool computeAndDisplayStatistics(List* list) {
 	}
 	LibStudent stu;
 	const int courses = 5;
-	string course[courses] = { "CS", "IA", "IB", "CN", "CT" };
+	string course[courses] = { " CS", " IA", " IB", " CN", " CT" };
 	int numOfStu[courses] = { 0,0,0,0,0 };
 	int numOfBook[courses] = { 0,0,0,0,0 };
 	int numOfOverdue[courses] = { 0,0,0,0,0 };
@@ -588,11 +602,11 @@ bool computeAndDisplayStatistics(List* list) {
 		if (i == 0 || i == list->count - 1) {
 			cout << "----------------------------------------------------------------" << endl;
 			if (i == 0) {
-				cout << "| Course | Number of Students | Total Books Borrowed | Total Overdue Books |Total Overdue Fine (RM)|\n ";
+				cout << "| Course\t| Number of Students\t| Total Books Borrowed\t| Total Overdue Books \t|Total Overdue Fine (RM)|\n";
 			}
 		}
 		 
-		cout << course[i] << " | " << numOfStu[i] << " | " << numOfBook[i] << " | " << numOfOverdue[i] << " | " << total[i]<<"\n";
+		cout <<"|" << course[i] << "\t\t| " << numOfStu[i] << "\t\t\t| " << numOfBook[i] << "\t\t\t| " << numOfOverdue[i] << " \t\t\t| " << total[i] << "\n";
 	}
 	return true;
 }
