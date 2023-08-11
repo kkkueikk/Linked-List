@@ -29,7 +29,6 @@ bool printStuWithSameBook(List*, char*);
 bool displayWarnedStudent(List*, List*, List*);
 
 void menu(int*);
-bool readBookFile(List *, string filename);
 double calculateFine(LibBook& book);
 bool isInt(string& input);
 int getInputInRange(int minRange, int maxRange);
@@ -90,7 +89,6 @@ int main() {
 			menu(&choose);
 			break;
 		case 4:
-			//Ethan in prograss
 			system("cls");
 			cout << "Insert book" << endl;
 			InsertBook("book.txt", &stdList);
@@ -282,7 +280,7 @@ bool SearchStudent(List* list, char* id, LibStudent &stu) {
         return false;
 }
 
-bool readBookFile(List* list, string filename) {
+bool InsertBook(string filename, List* list) {
 	ifstream inputFile;
 	inputFile.open(filename);
 	if (!inputFile.is_open()) {
@@ -290,13 +288,16 @@ bool readBookFile(List* list, string filename) {
 		return false;
 	}
 	if (list->empty()) {
-		if (!ReadFile("student.txt", list))
+		if (!ReadFile("student.txt", list)) {
 			cout << "There is no student in student.txt!\n";
+			return false;
+		}
 	}
 	LibStudent stu;
 	LibBook book;
 	string stuID, title, author, publisher, ISBN, yearPublished, callNum, borrow, due, temp;
 	while (getline(inputFile, stuID, '\t')) {
+
 		getline(inputFile, temp, ' ');
 		getline(inputFile, author, ' ');
 		getline(inputFile, title, ' ');
@@ -308,14 +309,13 @@ bool readBookFile(List* list, string filename) {
 		getline(inputFile, due);
 		getline(inputFile, temp);
 		getline(inputFile, temp);
-		const char* tmp = &stuID[0];
-		SearchStudent(list, (char*)tmp, stu);
+		
 		strcpy_s(book.title, (char*)title.c_str());
 		strcpy_s(book.publisher, (char*)publisher.c_str());
 		strcpy_s(book.ISBN, (char*)ISBN.c_str());
 		strcpy_s(book.callNum, (char*)callNum.c_str());
 		book.yearPublished = stoi(yearPublished);
-		cout << yearPublished << endl;
+		
 		string datePart[3];
 		Date date;
 		split(borrow, datePart);
@@ -328,24 +328,36 @@ bool readBookFile(List* list, string filename) {
 		while (i < 10 && !name[i].empty()) {
 			book.author[i] = new char[name[i].length() + 1];
 			strcpy_s(book.author[i], name[i].length() + 1, name[i].c_str());
-			cout << book.author[i] << endl;
+			
 			i++;
 		}
-		book.fine = calculateFine(book);
-		cout << book.fine;
-		stu.totalbook++;
-		stu.book[stu.totalbook-1] = book;
-		stu.calculateTotalFine();
-		updateStudent(list, stu);
-		stu.print(cout);
+		
+		const char* tmp = &stuID[0];
+		SearchStudent(list, (char*)tmp, stu);
+		bool isduplicate = false;
+		for (int i = 0; i < stu.totalbook; i++) {
+			if (stu.book[i].title == title) {
+				isduplicate = true;
+				break;
+			}
+		}
+		if (!isduplicate) {
+			book.fine = calculateFine(book);
+			stu.totalbook++;
+			stu.book[stu.totalbook - 1] = book;
+			stu.calculateTotalFine();
+			updateStudent(list, stu);
+		}
 	}
+	cout << "Reading from " << filename << " successful!\n";
 	return true;
 }
 
+//update the student list
 bool updateStudent(List* list, LibStudent& stu) {
 	Node* cur = list->head;
 	while (cur != nullptr) {
-		if (cur->item.compareName2(stu)) {
+		if (cur->item.compareName2(stu)) {  //traverse to find the student with same name then pass the information to it
 			cur->item = stu;
 			return true;
 		}
@@ -355,67 +367,9 @@ bool updateStudent(List* list, LibStudent& stu) {
 	return false; // Student not found
 }
 
-bool InsertBook(string filename, List* list) {
-	ofstream outFile;
-	outFile.open(filename);
-	if (list->empty()) {
-		cout << "Reading student info..." << endl;
-		if (!ReadFile("student.txt", list)) {
-			cout << "Quit Insertion" << endl;
-		}
-		readBookFile(list, filename);
-	}
-	LibStudent stu;
-	LibBook book;
-	string temp;
-	int num;
-	string borrow_date_part[3], due_date_part[3];
-	cout << "Give the ID of the student you want to insert the book,\n";
-	const char* stuID = &(to_string(getInputInRange(ID_MIN, ID_MAX))[0]);
-	cout << stuID << endl;
-	if (!SearchStudent(list, (char*)stuID, stu)) {
-		cout << "Quit Insertion" << endl;
-		return false;
-	}
-	cout << "Input book information(remember to replace space with '_'" << endl << "Book: ";
-	cin >> book.title;
-	cout << "The number of author(s): ";
-	cin >> num;
-	for (int i = 0; i < num; i++) {
-		cout << "Authors " << i << ": ";
-		cin >> book.author[i];
-	}
-	cout << "Publisher: ";
-	cin >> book.publisher;
-	cout << "ISBN: ";
-	cin >> book.ISBN;
-	cout << "Published year: " << endl;
-	cin >> book.yearPublished;
-	cout << "callNum: " << endl;
-	cin >> book.callNum;
-	cout << "borrow date(DD/MM/YYYY): ";
-	cin >> temp;
-	split(temp, borrow_date_part);
-	book.borrow = Date(stoi(borrow_date_part[0]), stoi(borrow_date_part[1]), stoi(borrow_date_part[2]));
-	cout << "due date(DD/MM/YYYY): ";
-	cin >> temp;
-	split(temp, due_date_part);
-	book.due = Date(stoi(due_date_part[0]), stoi(due_date_part[1]), stoi(due_date_part[2]));
-	stu.book[stu.totalbook] = book;
-	stu.totalbook++;
-	stu.calculateTotalFine();
-	outFile << stuID << "\t " << book.title << " ";
-	for (char* name : book.author) {
-		outFile << name << "/";
-	}
-	outFile << book.publisher << " " << book.ISBN << " " << book.yearPublished << " " << book.callNum << " " << borrow_date_part[0] << "/" << borrow_date_part[1] << "/" << borrow_date_part[2]<< " " << due_date_part << "/"<<due_date_part<<"/"<<due_date_part<<endl;
-	outFile.close();
-	return true;
-}
-
 //no need & before array because array is passed as pointer
 void split(const string& string1, string arr1[]) {
-	if (string1.find('/')) {
+	if (string1.find('/')) {  //find if '/' is in the string
 		stringstream ss(string1);
 		string token;
 		int index = 0;
@@ -424,14 +378,14 @@ void split(const string& string1, string arr1[]) {
 			arr1[index++] = token;
 		}
 	}
-	else { 
+	else { //if not in the string
 		arr1[0] = string1;
 	}
 }
 
 double calculateFine(LibBook &book) {
 	    Date currentDate(29,3,2020);
-		
+		int daysOverdue = 0;
 		int dueDays = 0, currentDays=0;
 		for (int i = 1; i <= book.due.month; i++) {
 			dueDays += days_in_month(i, book.due.year);
@@ -446,7 +400,8 @@ double calculateFine(LibBook &book) {
 			currentDays += 365;
 		}
 
-		int daysOverdue = currentDays+currentDate.day-dueDays+book.due.day;
+		//calculate their difference in days
+		daysOverdue = currentDays+currentDate.day-dueDays-book.due.day;
 
 		if (daysOverdue > 0)
 			return book.fine = 0.50 * daysOverdue;
@@ -471,6 +426,7 @@ int days_in_month(int month, int year) {
 	return days;
 }
 
+//check if leap year, if yes, add one to february
 int leap(int year)
 {
 	if (year % 400 == 0)
@@ -511,28 +467,28 @@ bool Display(List* list, int source, int detail) {
 	//detail determine what info to print
 	LibStudent stu;
 	
-	//list is a pointer for list, we can modify the object
-	if (list->empty()) {
+	//list is a pointer for list, we can modify the object inside
+	if (list->empty()) {  //if list is empty, execure ReadFile to get student info
 		if (!ReadFile("student.txt", list)) {
 			return false;
 		}
 		else {
 			cout << "Reading from student.txt success..." << endl;
-		}
-		if (!readBookFile(list, "book.txt")&&detail==1) {
-			cout << "No record for detail display! " << endl;
-			return false;
+			if (!InsertBook("book.txt", list) && detail == 1) {
+				cout << "\nNo record in book.txt!" << endl;
+			}
 		}
 	}
 
+	//check user want to print in where 2=cout, 1=file
 	if (source == 2) {
-		for (int i = 1; i < list->count; i++) {
+		for (int i = 1; i <= list->count; i++) {
 			
 			list->get(i, stu);
 			cout << "\nSTUDENT " << i;
-			stu.print(cout);
+			stu.print(cout);  //printing...
 
-
+			//continue printing detail if user want detail
 			if (detail == 1) {
 				cout << "\nBOOK LIST:" << "\n";
 				for (int i = 0; i < stu.totalbook;i++) {
@@ -547,10 +503,10 @@ bool Display(List* list, int source, int detail) {
 		ofstream outputFile;
 		string filename;
 		if(detail==1){
-			filename = "student_bl.txt";
+			filename = "student_booklist.txt";
 		}
 		else if (detail == 2) {
-			filename = "student_if.txt";
+			filename = "student_info.txt";
 		}
 		outputFile.open(filename, fstream::app);
 		//If filename does not exist, the file is created. Otherwise, the fstream::app
@@ -558,11 +514,11 @@ bool Display(List* list, int source, int detail) {
 
 		for (int i = 1; i < list->count; i++) {
 			list->get(i, stu);
-			stu.print(outputFile);
+			stu.print(outputFile); //printing...
 
 			if (detail == 1) {
 				for (int i = 0; i < stu.totalbook; i++) {
-					stu.book[i].print(outputFile);
+					stu.book[i].print(outputFile); 
 				}
 			}
 		}
@@ -573,31 +529,46 @@ bool Display(List* list, int source, int detail) {
 }
 	
 bool computeAndDisplayStatistics(List* list) {
+
+	//if list is empty, read student.txt and book.txt
 	if (list->empty()) {
-		return false;
+		if (!ReadFile("student.txt", list)) {
+			return false;
+		}
+		else {
+			cout << "Reading from student.txt success..." << endl;
+			if (!InsertBook("book.txt", list)) {
+				cout << "\nNo record in book.txt! " << endl;
+			}
+		}
 	}
+
+	//initialise the variables and arrays
 	LibStudent stu;
 	const int courses = 5;
-	string course[courses] = { " CS", " IA", " IB", " CN", " CT" };
+	string course[courses] = { "CS", "IA", "IB", "CN", "CT" };
 	int numOfStu[courses] = { 0,0,0,0,0 };
 	int numOfBook[courses] = { 0,0,0,0,0 };
 	int numOfOverdue[courses] = { 0,0,0,0,0 };
 	double total[courses] = { 0.00,0.00,0.00,0.00,0.00 };
 	for (int i = 0; i < list->count; i++) {
-		list->get(i, stu);
+		list->get(i, stu);  //get the student then check their course, then calculate if they have fine
 		for (int j = 0; j < courses; j++) {
 			if (stu.course == course[j]) {
 				numOfStu[j]++;
 				numOfBook[j] += stu.totalbook;
 				for (int k=0; k < stu.totalbook; k++) {
-					if (stu.book[k].fine) {
+					if (stu.book[k].fine>0) {
 						numOfOverdue[j]++;
 						total[j] += stu.book[k].fine;
 					}
 				}
+				break;
 			}
 		}
 	}
+
+	//printing...
 	for (int i = 0; i < courses; i++) {
 		if (i == 0 || i == list->count - 1) {
 			cout << "----------------------------------------------------------------" << endl;
@@ -617,8 +588,6 @@ bool isInt(string &input) {
 		//iterate each character
 		if (!isdigit(s)) {
 			//isdigit takes "int" or "unsigned char" as parameters
-			//strlen can also be used to calculate string length
-			//for (int i = 0; i < strlen(str); i++) 
 			return false;
 		}
 	}

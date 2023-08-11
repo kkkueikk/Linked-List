@@ -12,7 +12,7 @@ struct LibBook
 
 	char title[250];
 	char* author[10]; //can be more than one author
-	char publisher[30];
+	char publisher[30]; //fixed size array, thus cannot use new char[], if it is a char* then you can 
 	char ISBN[11]; //10 digits isbn
 	int yearPublished;
 
