@@ -597,7 +597,7 @@ bool isInt(string &input) {
 //huanQian
 bool printStuWithSameBook(List* list, char* callNum)
 {
-	List sameBook;
+	List sameBook;//declaare a list to store student that have the same book
 	int numOfStud = 0;//number of Student
 	//int count = 0;
 	LibStudent info;
@@ -607,7 +607,7 @@ bool printStuWithSameBook(List* list, char* callNum)
 
 		while (ptr != NULL) {
 
-			info = ptr->item;
+			info = ptr->item;//get the student info and book list from list
 
 			for (int i = 0; i < 15; i++) {
 				//Student who did not borrow any book
@@ -617,8 +617,9 @@ bool printStuWithSameBook(List* list, char* callNum)
 				}
 
 				else {
-					if (strcmp(info.book[i].callNum, callNum)) {
-						sameBook.insert(info);
+					//if students who have borrow book
+					if (strcmp(info.book[i].callNum, callNum)) {//if students have same book
+						sameBook.insert(info);//insert student info list into list
 						numOfStud += 1;
 						break;
 					}
@@ -627,12 +628,14 @@ bool printStuWithSameBook(List* list, char* callNum)
 			ptr = ptr->next;
 		}
 
+		//count number of student
 		cout << "***********************************************************************" << endl;
 		cout << "There are " << numOfStud << " students borrow the book with call number " << callNum << " as shown below: " << endl << endl;
 
 		if (numOfStud != 0) {
 
 			ptr = sameBook.head;
+			//display student info ,borrow date and due date
 			while (ptr != NULL) {
 				cout << "Student ID = " << ptr->item.id << endl;
 				cout << "Name = " << ptr->item.name << endl;
@@ -654,91 +657,115 @@ bool printStuWithSameBook(List* list, char* callNum)
 
 }
 
+//type1, more than 10 days of due date, which is more than RM 5.00 ,since 1 day=RM 0.50
+//type2, total fine > RM 50.00 && all books are overdue
 bool displayWarnedStudent(List* list, List* type1, List* type2)
 {
-	if (list->empty())
+
+if (list->empty())//if list empty
+{
+	cout << "No student in the record.\n";
+	return false;
+}
+else
+{
+	//Display current date
+	Date currentDate;
+	currentDate.day = 29;
+	currentDate.month = 3;
+	currentDate.year = 2020;
+	cout << "Current Date : ", currentDate.print(cout);
+	cout << endl;
+
+	LibStudent studInfo;
+	Node* listPtr = list->head;
+	int count = 1;
+
+	while (listPtr != NULL)
 	{
-		cout << "No student in the record.\n";
-		return false;
+		studInfo = listPtr->item;//get stud info from list
+
+		int overDue = 0;
+		int checkDueBook = 0;
+		for (int i = 0; i < studInfo.totalbook; i++) {//count total book of each student
+			if (studInfo.book[i].fine > 5) {//if fine more than RM 5.00
+				overDue = overDue + 1;
+			}
+		}
+		if (overDue >= 2) {//insert student info into list
+			type1->insert(studInfo);
+		}
+
+		for (int i = 0; i < studInfo.totalbook; i++) {
+			if (listPtr->item.book[i].fine != 0) {//check whether all the book is due
+				checkDueBook = checkDueBook + 1;
+			}
+		}
+		if ((checkDueBook == studInfo.totalbook) && (studInfo.total_fine > 50)) {
+			type2->insert(studInfo);
+		}
+		listPtr = listPtr->next;
+		count++;
+
 	}
-	else
+
+	//display student and book of type1
+	if (type1->empty()) {
+		cout << "No type 1 List" << endl;
+
+	}
+	else {
+		cout << "\nType 1 warning: " << endl<<endl;
+		Node* ptr = type1->head;
+		int stuCounter = 1;
+
+		while (ptr != NULL)
+		{
+			cout << "Student " << stuCounter << endl;
+			cout << "Student Id = " << ptr->item.id << endl;
+			cout << "Name = " << ptr->item.name << endl;
+			cout << "Course =" << ptr->item.course << endl;
+			cout << "Phone Number = " << ptr->item.phone_no << endl<<endl;
+			for (int i = 0; i < ptr->item.totalbook; i++) {
+				cout << "Book " << i + 1 << ":";
+				ptr->item.book[i].print(cout);
+				cout << endl;
+			}
+			cout << endl;
+
+			ptr = ptr->next;
+			stuCounter++;
+		}
+		cout << "**************************************************" << endl;
+	}
+
+	//Display student and book info
+	if (!type2->empty())
 	{
-		Date currentDate;
-		currentDate.day = 29;
-		currentDate.month = 3;
-		currentDate.year = 2020;
-		cout << "Current Date : ", currentDate.print(cout);
-		cout << endl;
-
-		LibStudent studInfo;
-		Node* listPtr = list->head;
-		int count = 1;
-
-		while (listPtr != NULL)
+		cout << "\nType 2 warning: " << endl;
+		Node* ptr = type2->head;
+		int stuCounter = 1;
+		while (ptr != NULL)
 		{
-			list->get(count, studInfo);
-			int overDue = 0;
-			int checkDueBook = 0;
-			for (int i = 0; i < listPtr->item.totalbook; i++) {
-				if (listPtr->item.total_fine > 5) {
-					overDue = overDue + 1;
-				}
+			cout << "Student " << stuCounter << endl;
+			cout << "Student Id = " << ptr->item.id << endl;
+			cout << "Name = " << ptr->item.name << endl;
+			cout << "Course =" << ptr->item.course << endl;
+			cout << "Phone Number = " << ptr->item.phone_no << endl << endl;
+			for (int i = 0; i < ptr->item.totalbook; i++) {
+				cout << "Book " << i + 1 << ":";
+				ptr->item.book[i].print(cout);
+				cout << endl;
 			}
-			if (overDue > 2) {
-				type1->insert(studInfo);
-			}
+			cout << endl;
 
-			for (int i = 0; i < listPtr->item.totalbook; i++) {
-				if (listPtr->item.book[i].fine != 0) {
-					checkDueBook = checkDueBook + 1;
-				}
-			}
-			if ((checkDueBook == listPtr->item.totalbook) && (listPtr->item.total_fine > 50)) {
-				type2->insert(studInfo);
-			}
-			listPtr = listPtr->next;
-			count++;
-
+			ptr = ptr->next;
+			stuCounter++;
 		}
-
-		//display student and book of type1 and type2
-		if (type1->empty()) {
-			cout << "No type 1 List" << endl;
-
-		}
-		else {
-			cout << "\nType 1 warning: " << endl;
-			Node* ptr = type1->head;
-			int stuCounter = 1;
-
-			while (ptr != NULL)
-			{
-				cout << "Student " << stuCounter << endl;
-				cout << "Student Id = " << ptr->item.id << endl;
-				cout << "Name = " << ptr->item.name << endl;
-				cout << "Course =" << ptr->item.course << endl;
-
-				ptr = ptr->next;
-				stuCounter++;
-			}
-		}
-
-		if (!type2->empty())
-		{
-			cout << "\nType 2 warning: " << endl;
-			Node* ptr = type2->head;
-			int stuCounter = 1;
-
-			while (ptr != NULL) {
-				cout << "Student " << stuCounter << endl;
-				cout << "Student Id = " << ptr->item.id << endl;
-				cout << "Name = " << ptr->item.name << endl;
-				cout << "Course =" << ptr->item.course << endl;
-
-				ptr = ptr->next;
-				stuCounter++;
-			}
-		}
-		return true;
 	}
+	else {
+		cout << "No type 2 list." << endl;
+	}
+	return true;
+}
 }
